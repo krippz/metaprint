@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using CSharpx;
 using versions;
@@ -38,23 +39,40 @@ public class FileReader : IReader
         }
 
     }
-
+    private bool PathIsFile(string path)
+    {
+        return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+    }
     public FileVersionInfo ReadFileVersionInfo(string path)
     {
+        if (!PathIsFile(path))
+        {
+            return null;
+        }
+
         try
         {
-            var attr = File.GetAttributes(path);
-            if (!attr.HasFlag(FileAttributes.Directory))
-            {
-                return System.Diagnostics.FileVersionInfo.GetVersionInfo(path);
-            }
-
+            return System.Diagnostics.FileVersionInfo.GetVersionInfo(path);
+        }
+        catch (FileNotFoundException e)
+        {
             return null;
+        }
+
+    }
+    public AssemblyName ReadAssemblyName(string path)
+    {
+        if (!PathIsFile(path))
+        {
+            return null;
+        }
+        try
+        {
+            return System.Reflection.AssemblyName.GetAssemblyName(path);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return null;
         }
     }
     private IEnumerable<string> GetFiles(IEnumerable<string> dirs)
@@ -66,14 +84,30 @@ public class FileReader : IReader
     public FileMetadata Read(string path)
     {
         FileVersionInfo i = ReadFileVersionInfo(path);
+        AssemblyName x = ReadAssemblyName(path);
 
-        return (i == null) ? new FileMetadata { FileName = "N/A" } : new FileMetadata
+        if (i == null)
+        {
+            return new FileMetadata { FileName = "N/A" };
+        }
+
+        var meta = new FileMetadata
         {
             FileName = i.InternalName,
             FileVersion = i.FileVersion,
             CompanyName = i.CompanyName,
-            Copyright = i.LegalCopyright
+            Copyright = i.LegalCopyright,
+            Trademark = i.LegalTrademarks,
+            ProductName = i.ProductName,
+            ProductVersion = i.ProductVersion
         };
+
+        if (x != null)
+        {
+            meta.ProcessorArchitecture = Enum.GetName(typeof(ProcessorArchitecture), x.ProcessorArchitecture);
+        }
+
+        return meta;
     }
     public IEnumerable<FileMetadata> Read(IEnumerable<string> paths)
     {
