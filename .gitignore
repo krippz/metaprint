@@ -189,6 +189,7 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+**/nupkg/*
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
@@ -308,8 +309,8 @@ __pycache__/
 *.pyc
 
 # Cake - Uncomment if you are using it
-# tools/**
-# !tools/packages.config
+tools/**
+!tools/packages.config
 
 # Tabs Studio
 *.tss
