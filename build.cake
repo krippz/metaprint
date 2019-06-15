@@ -48,7 +48,7 @@ Task("build")
         OutputDirectory = buildDir
     };
 
-    DotNetCoreBuild("./src/metaprint.sln",settings);
+    DotNetCoreBuild(projectPath.ToString(),settings);
 
 });
 
@@ -56,7 +56,7 @@ Task("run-tests")
     .IsDependentOn("build")
     .Does(() =>
 {
-
+    DotNetCoreTest(projectPath.ToString());
 });
 
 Task("pack")
@@ -68,7 +68,7 @@ Task("pack")
          Configuration = configuration,
          OutputDirectory = packDir
      };
-    DotNetCorePack("./src/metaprint.sln", settings);
+    DotNetCorePack(projectPath.ToString(), settings);
 });
 
 //////////////////////////////////////////////////////////////////////

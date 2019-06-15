@@ -9,7 +9,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/bin/Debug/netcoreapp2.2/metaprint.dll",
+      "program": "${workspaceFolder}\\artifacts\\bin\\Debug\\metaprint.dll",
       "args": ["-d", "C:\\Users\\krilin\\dev\\Terminal\\bin\\x64\\Debug", "-v"],
       "cwd": "${workspaceFolder}",
       "console": "internalConsole",

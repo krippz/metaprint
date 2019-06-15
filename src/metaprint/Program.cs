@@ -14,7 +14,7 @@ public class Program
     public static void RunPrinter(Options o)
     {
 
-        var reader = new FileReader(o.Extensions);
+        var reader = new FileReader(new Settings(o.Extensions));
         var printer = new Printer(reader, o.Verbose);
 
         if (!o.Files.IsNullOrEmpty())

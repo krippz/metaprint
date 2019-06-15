@@ -10,28 +10,23 @@ using Extensions;
 public class FileReader : IReader
 {
     private readonly IEnumerable<string> fileExtensions;
-    public FileReader(IEnumerable<string> fileExtensions)
+    public FileReader(Settings settings)
     {
-        var safeExt = fileExtensions.ToList();
-        if (safeExt.IsNullOrEmpty())
-        {
-            this.fileExtensions = new List<string>
-            {
-                ".dll",
-                ".exe"
-            };
-        }
-        else
-        {
-            this.fileExtensions = safeExt;
-        }
-
+        fileExtensions = settings.Extensions;
     }
     private bool PathIsFile(string path)
     {
-        return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+        try
+        {
+            return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+        }
+        catch
+        {
+            return false;
+        }
+
     }
-    public FileVersionInfo ReadFileVersionInfo(string path)
+    private FileVersionInfo ReadFileVersionInfo(string path)
     {
         if (!PathIsFile(path))
         {
@@ -48,7 +43,7 @@ public class FileReader : IReader
         }
 
     }
-    public AssemblyName ReadAssemblyName(string path)
+    private AssemblyName ReadAssemblyName(string path)
     {
         if (!PathIsFile(path))
         {
@@ -74,22 +69,19 @@ public class FileReader : IReader
         FileVersionInfo i = ReadFileVersionInfo(path);
         AssemblyName x = ReadAssemblyName(path);
 
-        if (i == null)
+
+        var meta = new FileMetadata();
+        if (i != null)
         {
-            return new FileMetadata { FileName = "N/A" };
+            meta.FileName = Path.GetFileName(i.FileName.GetValueOrNotAvalible());
+            meta.InternalName = i.InternalName.GetValueOrNotAvalible();
+            meta.FileVersion = i.FileVersion.GetValueOrNotAvalible();
+            meta.CompanyName = i.CompanyName.GetValueOrNotAvalible();
+            meta.Copyright = i.LegalCopyright.GetValueOrNotAvalible();
+            meta.Trademark = i.LegalTrademarks.GetValueOrNotAvalible();
+            meta.ProductName = i.ProductName.GetValueOrNotAvalible();
+            meta.ProductVersion = i.ProductVersion.GetValueOrNotAvalible();
         }
-
-        var meta = new FileMetadata
-        {
-            FileName = i.InternalName,
-            FileVersion = i.FileVersion,
-            CompanyName = i.CompanyName,
-            Copyright = i.LegalCopyright,
-            Trademark = i.LegalTrademarks,
-            ProductName = i.ProductName,
-            ProductVersion = i.ProductVersion
-        };
-
         if (x != null)
         {
             meta.ProcessorArchitecture = Enum.GetName(typeof(ProcessorArchitecture), x.ProcessorArchitecture);
@@ -97,17 +89,21 @@ public class FileReader : IReader
 
         return meta;
     }
+
+
     public IEnumerable<FileMetadata> Read(IEnumerable<string> paths)
     {
         var anyFiles = GetFiles(paths);
 
         if (!anyFiles.IsNullOrEmpty())
         {
-            return anyFiles.ToList().Select(x =>
+            var result = anyFiles.ToList().Select(x =>
             {
+
                 return Read(x);
 
             });
+            return result.Where(r => !r.Equals(FileMetadata.Empty));
         }
 
         return Enumerable.Empty<FileMetadata>();
