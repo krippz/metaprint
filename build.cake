@@ -103,7 +103,7 @@ Task("run-tests")
         DotNetCoreTest(solutionPath);
     });
 
-Task("pack")
+Task("package-nuget")
     .IsDependentOn("run-tests")
     .WithCriteria(() => HasArgument("pack"))
     .Does(() =>
@@ -120,7 +120,7 @@ Task("pack")
                 .WithProperty("Copyright", $"Copyright Kristofer Linnestjerna {DateTime.Now.Year}")
         };
 
-        pack(solutionPath, settings);
+        DotNetCorePack(solutionPath, settings);
     });
 
 //////////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ Task("pack")
 //////////////////////////////////////////////////////////////////////
 
 Task("default")
-    .IsDependentOn("pack");
+    .IsDependentOn("package-nuget");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
