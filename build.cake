@@ -1,4 +1,16 @@
+//////////////////////////////////////////////////////////////////////
+// MODULES TOOLS AND ADINS
+//////////////////////////////////////////////////////////////////////
+
+#module nuget:?package=Cake.DotNetTool.Module&version=0.3.0
+
 #tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
+#tool dotnet:?package=GitVersion.Tool&version=5.0.0-beta3-4
+
+#addin nuget:?package=Cake.AppVeyor&version=3.0.0
+#addin nuget:?package=Refit&version=3.0.0
+#addin nuget:?package=Newtonsoft.Json&version=9.0.1
+
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
@@ -11,14 +23,16 @@ var configuration = Argument("configuration", "Debug");
 //////////////////////////////////////////////////////////////////////
 
 // Define directories.
-var buildDir = Directory("./artifacts/bin") + Directory(configuration);
-var packDir = buildDir + Directory("nupkg");
+var artifactsDir = MakeAbsolute(Directory("artifacts"));
+var packagesDir = artifactsDir.Combine(Directory("nupkg"));
+var testResultDir = artifactsDir.Combine(Directory("test-results"));
 
 //Project variables
-var sourceDir = new DirectoryPath("./src");
-var solutionName = "metaprint.sln";
+var sourceDir = MakeAbsolute(Directory("src"));
+var solutionPath = sourceDir.Combine("metaprint.sln").ToString();
 
-var projectPath = sourceDir.CombineWithFilePath(solutionName);
+var assemblyVersion = "1.0.0";
+var packageVersion = "1.0.0";
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -26,50 +40,88 @@ var projectPath = sourceDir.CombineWithFilePath(solutionName);
 
 Task("clean")
     .Does(() =>
-{
-    CleanDirectory(buildDir);
-});
+    {
+        CleanDirectory(artifactsDir);
+    });
 
 Task("restore")
     .IsDependentOn("clean")
     .Does(() =>
-{
-    DotNetCoreRestore(projectPath.ToString());
-});
+    {
+        DotNetCoreRestore(solutionPath);
+    });
 
-Task("build")
+Task("semver")
     .IsDependentOn("restore")
     .Does(() =>
-{
-    var settings = new DotNetCoreBuildSettings
     {
-        Framework = "netcoreapp2.2",
-        Configuration = configuration,
-        OutputDirectory = buildDir
-    };
+        var settings = new GitVersionSettings
+        {
+            NoFetch = true
+        };
 
-    DotNetCoreBuild(projectPath.ToString(),settings);
+        var gitVersion = GitVersion(settings);
+        assemblyVersion = gitVersion.AssemblySemVer;
+        packageVersion = gitVersion.NuGetVersion;
 
-});
+        Information($"AssemblySemVer: {assemblyVersion}");
+        Information($"NuGetVersion: {packageVersion}");
+    });
+
+Task("set-appveyor-version")
+    .IsDependentOn("semver")
+    .WithCriteria(() => AppVeyor.IsRunningOnAppVeyor)
+    .Does(() =>
+    {
+        AppVeyor.UpdateBuildVersion(packageVersion);
+    });
+
+Task("build")
+    .IsDependentOn("set-appveyor-version")
+    .Does(() =>
+    {
+        var settings = new DotNetCoreBuildSettings
+        {
+            Framework = "netcoreapp2.2",
+            Configuration = configuration,
+            NoIncremental = true,
+            NoRestore = true,
+            MSBuildSettings = new DotNetCoreMSBuildSettings()
+                .SetVersion(assemblyVersion)
+                .WithProperty("FileVersion", packageVersion)
+                .WithProperty("InformationalVersion", packageVersion)
+                .WithProperty("nowarn", "7035")
+        };
+
+        DotNetCoreBuild(solutionPath,settings);
+    });
 
 Task("run-tests")
     .IsDependentOn("build")
     .Does(() =>
-{
-    DotNetCoreTest(projectPath.ToString());
-});
+    {
+        DotNetCoreTest(solutionPath);
+    });
 
 Task("pack")
     .IsDependentOn("run-tests")
+    .WithCriteria(() => HasArgument("pack"))
     .Does(() =>
-{
-    var settings = new DotNetCorePackSettings
-     {
-         Configuration = configuration,
-         OutputDirectory = packDir
-     };
-    DotNetCorePack(projectPath.ToString(), settings);
-});
+    {
+        var settings = new DotNetCorePackSettings
+        {
+            Configuration = configuration,
+            NoBuild = true,
+            NoRestore = true,
+            IncludeSymbols = true,
+            OutputDirectory = packagesDir,
+            MSBuildSettings = new DotNetCoreMSBuildSettings()
+                .WithProperty("PackageVersion", packageVersion)
+                .WithProperty("Copyright", $"Copyright Kristofer Linnestjerna {DateTime.Now.Year}")
+        };
+
+        pack(solutionPath, settings);
+    });
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
