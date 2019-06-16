@@ -1,6 +1,7 @@
 image: Visual Studio 2019
 build_script:
   - ps: dotnet cake build.cake --bootstrap
+  - ps: dotnet cake build.cake --pack
 assembly_info:
   # We'll version the binaries and the NuGet package in the build script
   patch: false
