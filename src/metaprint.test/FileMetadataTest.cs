@@ -1,6 +1,7 @@
 using Xunit;
+using Metadata;
 
-namespace metaprint.test
+namespace Metaprint.Test
 {
     public class FileMetadataTests
     {

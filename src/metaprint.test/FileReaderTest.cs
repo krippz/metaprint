@@ -1,6 +1,9 @@
 using Xunit;
+using Readers;
+using Config;
+using Metadata;
 
-namespace metaprint.test
+namespace Metaprint.Test
 {
     public class FileReaderTests
     {
