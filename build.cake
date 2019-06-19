@@ -10,6 +10,9 @@
 #addin nuget:?package=Cake.AppVeyor&version=3.0.0
 #addin nuget:?package=Refit&version=3.0.0
 #addin nuget:?package=Newtonsoft.Json&version=9.0.1
+#tool dotnet:?package=dotnet-xunit-to-junit&version=1.0.0
+
+#r Newtonsoft.Json
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -25,11 +28,11 @@ var configuration = Argument("configuration", "Debug");
 // Define directories.
 var artifactsDir = MakeAbsolute(Directory("artifacts"));
 var packagesDir = artifactsDir.Combine(Directory("nupkg"));
-var testResultDir = artifactsDir.Combine(Directory("test-results"));
+var testResultsDir = artifactsDir.Combine(Directory("test-results"));
 
 //Project variables
 var sourceDir = MakeAbsolute(Directory("src"));
-var solutionPath = sourceDir.Combine("metaprint.sln").ToString();
+var solutionPath = "metaprint.sln";
 
 var assemblyVersion = "1.0.0";
 var packageVersion = "1.0.0";
@@ -41,14 +44,21 @@ var packageVersion = "1.0.0";
 Task("clean")
     .Does(() =>
     {
-        CleanDirectory(artifactsDir);
+         CleanDirectory(artifactsDir);
+
+        var settings = new DotNetCoreCleanSettings
+        {
+            Configuration = configuration
+        };
+
+        DotNetCoreClean(solutionPath, settings);
     });
 
 Task("restore")
     .IsDependentOn("clean")
     .Does(() =>
     {
-        DotNetCoreRestore(solutionPath);
+        DotNetCoreRestore();
     });
 
 Task("semver")
@@ -82,7 +92,6 @@ Task("build")
     {
         var settings = new DotNetCoreBuildSettings
         {
-            Framework = "netcoreapp2.2",
             Configuration = configuration,
             NoIncremental = true,
             NoRestore = true,
@@ -93,7 +102,18 @@ Task("build")
                 .WithProperty("nowarn", "7035")
         };
 
-        DotNetCoreBuild(solutionPath,settings);
+        if (IsRunningOnLinuxOrDarwin())
+        {
+            settings.Framework = "netstandard2.2";
+
+            GetFiles("./src/*/*.csproj")
+                .ToList()
+                .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
+        }
+        else
+        {
+            DotNetCoreBuild(solutionPath, settings);
+        }
     });
 
 Task("run-tests")
@@ -108,20 +128,38 @@ Task("package-nuget")
     .WithCriteria(() => HasArgument("pack"))
     .Does(() =>
     {
-        var settings = new DotNetCorePackSettings
-        {
-            Configuration = configuration,
-            NoBuild = true,
-            NoRestore = true,
-            IncludeSymbols = true,
-            OutputDirectory = packagesDir,
-            MSBuildSettings = new DotNetCoreMSBuildSettings()
-                .WithProperty("PackageVersion", packageVersion)
-                .WithProperty("Copyright", $"Copyright Kristofer Linnestjerna {DateTime.Now.Year}")
-        };
+        var settings = new DotNetCoreToolSettings();
 
-        DotNetCorePack(solutionPath, settings);
-    });
+        var argumentsBuilder = new ProcessArgumentBuilder()
+            .Append("-configuration")
+            .Append(configuration)
+            .Append("-nobuild");
+
+        if (IsRunningOnLinuxOrDarwin())
+        {
+            argumentsBuilder
+                .Append("-framework")
+                .Append("netcoreapp2.2");
+        }
+
+        var projectFiles = GetFiles("./src/*/*.test.csproj");
+
+        foreach (var projectFile in projectFiles)
+        {
+            var testResultsFile = testResultsDir.Combine($"{projectFile.GetFilenameWithoutExtension()}.xml");
+            var arguments = $"{argumentsBuilder.Render()} -xml \"{testResultsFile}\"";
+
+            DotNetCoreTool(projectFile, "xunit", arguments, settings);
+        }
+    })
+    .Does(() =>
+    {
+        if (IsRunningOnCircleCI())
+        {
+            TransformCircleCITestResults();
+        }
+    })
+    .DeferOnError();
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
@@ -135,3 +173,42 @@ Task("default")
 //////////////////////////////////////////////////////////////////////
 
 RunTarget(target);
+
+private bool IsRunningOnLinuxOrDarwin()
+{
+    return Context.Environment.Platform.IsUnix();
+}
+
+private bool IsRunningOnCircleCI()
+{
+    return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CIRCLECI"));
+}
+
+private void TransformCircleCITestResults()
+{
+    // CircleCI infer the name of the testing framework from the containing folder
+    var testResultsCircleCIDir = artifactsDir.Combine("junit/xUnit");
+    EnsureDirectoryExists(testResultsCircleCIDir);
+
+    var testResultsFiles = GetFiles($"{testResultsDir}/*.xml");
+
+    foreach (var testResultsFile in testResultsFiles)
+    {
+        var inputFilePath = testResultsFile;
+        var outputFilePath = testResultsCircleCIDir.CombineWithFilePath(testResultsFile.GetFilename());
+
+        var arguments = new ProcessArgumentBuilder()
+            .AppendQuoted(inputFilePath.ToString())
+            .AppendQuoted(outputFilePath.ToString())
+            .Render();
+
+        var toolName = Context.Environment.Platform.IsUnix() ? "dotnet-xunit-to-junit" : "dotnet-xunit-to-junit.exe";
+
+        var settings = new DotNetCoreToolSettings
+        {
+            ToolPath = Context.Tools.Resolve(toolName)
+        };
+
+        DotNetCoreTool(arguments, settings);
+    }
+}

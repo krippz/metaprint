@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "metaprint", "metaprint\metaprint.csproj", "{674362EA-018D-4F8A-BB62-2ACB2585637A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "metaprint", "src\metaprint\metaprint.csproj", "{674362EA-018D-4F8A-BB62-2ACB2585637A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "metaprint.test", "metaprint.test\metaprint.test.csproj", "{388DA139-4F56-4A9E-9A8F-8210D68EBD5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "metaprint.test", "src\metaprint.test\metaprint.test.csproj", "{388DA139-4F56-4A9E-9A8F-8210D68EBD5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
