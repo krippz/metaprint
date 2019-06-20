@@ -3,8 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #module nuget:?package=Cake.DotNetTool.Module&version=0.3.0
-
-#tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
 #tool dotnet:?package=GitVersion.Tool&version=5.0.0-beta3-4
 
 #addin nuget:?package=Cake.AppVeyor&version=3.0.0
@@ -104,52 +102,45 @@ Task("build")
 
         if (IsRunningOnLinuxOrDarwin())
         {
-            settings.Framework = "netstandard2.2";
+            settings.Framework = "netstandard2.0";
 
             GetFiles("./src/*/*.csproj")
                 .ToList()
                 .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
+
+            settings.Framework = "netcoreapp2.2";
+
+            GetFiles("./tests/*/*.tests.csproj")
+                .ToList()
+                .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
         }
-        else
-        {
-            DotNetCoreBuild(solutionPath, settings);
-        }
+
     });
 
 Task("run-tests")
     .IsDependentOn("build")
     .Does(() =>
     {
-        DotNetCoreTest(solutionPath);
-    });
-
-Task("package-nuget")
-    .IsDependentOn("run-tests")
-    .WithCriteria(() => HasArgument("pack"))
-    .Does(() =>
-    {
-        var settings = new DotNetCoreToolSettings();
-
         var argumentsBuilder = new ProcessArgumentBuilder()
-            .Append("-configuration")
-            .Append(configuration)
-            .Append("-nobuild");
+                                   .Append("test")
+                                   .Append("--test-adapter-path:.");
 
-        if (IsRunningOnLinuxOrDarwin())
+        var settings = new ProcessSettings()
         {
-            argumentsBuilder
-                .Append("-framework")
-                .Append("netcoreapp2.2");
-        }
+            Arguments = argumentsBuilder,
+        };
 
-        var projectFiles = GetFiles("./src/*/*.test.csproj");
+        var projectFiles = GetFiles("./tests/*/*.test.csproj");
 
         foreach (var projectFile in projectFiles)
         {
             var testResultsFile = testResultsDir.Combine($"{projectFile.GetFilenameWithoutExtension()}.xml");
-            var arguments = $"{argumentsBuilder.Render()} -xml \"{testResultsFile}\"";
+            var arguments = $"{argumentsBuilder.Render()} --logger:\"xunit;LogFilePath={testResultsFile}\"";
 
-            DotNetCoreTool(projectFile, "xunit", arguments, settings);
+            settings.WorkingDirectory = projectFile.GetDirectory();
+            settings.Arguments = arguments;
+
+            StartProcess("dotnet", settings);
         }
     })
     .Does(() =>
@@ -160,6 +151,33 @@ Task("package-nuget")
         }
     })
     .DeferOnError();
+
+Task("package-nuget")
+    .IsDependentOn("run-tests")
+    .WithCriteria(() => HasArgument("pack"))
+    .Does(() =>
+    {
+        var settings = new DotNetCorePackSettings
+        {
+            Configuration = configuration,
+            NoBuild = true,
+            NoRestore = true,
+            IncludeSymbols = true,
+            OutputDirectory = packagesDir,
+            MSBuildSettings = new DotNetCoreMSBuildSettings()
+                .WithProperty("PackageVersion", packageVersion)
+                .WithProperty("Copyright", $"Kristofer Linnestjerna {DateTime.Now.Year}")
+        };
+
+        if (IsRunningOnLinuxOrDarwin())
+        {
+            settings.MSBuildSettings.WithProperty("TargetFrameworks", "netstandard2.0");
+        }
+
+        GetFiles("./src/*/*.csproj")
+            .ToList()
+            .ForEach(f => DotNetCorePack(f.FullPath, settings));
+});
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
