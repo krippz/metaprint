@@ -23,7 +23,7 @@ namespace Config
             {
                 Extensions = safeExt.Select(i =>
                 {
-                    return i.StartsWith('.') ? i.ToLowerInvariant() : "." + i.ToLowerInvariant();
+                    return i.StartsWith(".") ? i.ToLowerInvariant() : "." + i.ToLowerInvariant();
                 });
             }
         }

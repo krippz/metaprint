@@ -3,11 +3,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #module nuget:?package=Cake.DotNetTool.Module&version=0.3.0
-#tool dotnet:?package=GitVersion.Tool&version=5.0.0-beta3-4
 
 #addin nuget:?package=Cake.AppVeyor&version=3.0.0
 #addin nuget:?package=Refit&version=3.0.0
 #addin nuget:?package=Newtonsoft.Json&version=9.0.1
+#tool dotnet:?package=GitVersion.Tool&version=5.0.0-beta3-4
 #tool dotnet:?package=dotnet-xunit-to-junit&version=1.0.0
 
 #r Newtonsoft.Json
@@ -43,13 +43,22 @@ Task("clean")
     .Does(() =>
     {
         CleanDirectory(artifactsDir);
+        var projectFiles = GetFiles("./**/*.csproj");
 
-        var settings = new DotNetCoreCleanSettings
+        foreach (var projectFile in projectFiles)
         {
-            Configuration = configuration
-        };
+            var binDir = projectFile.GetDirectory().Combine("bin");
+            var objDir = projectFile.GetDirectory().Combine("obj");
 
-        DotNetCoreClean(solutionPath, settings);
+            if(DirectoryExists(binDir))
+            {
+                 DeleteDirectory(binDir, new DeleteDirectorySettings{ Force = true, Recursive=true});
+            }
+            if(DirectoryExists(objDir))
+            {
+                DeleteDirectory(objDir, new DeleteDirectorySettings{ Force = true, Recursive=true});
+            }
+        }
     });
 
 Task("restore")
@@ -100,20 +109,13 @@ Task("build")
                 .WithProperty("nowarn", "7035")
         };
 
-        if (IsRunningOnLinuxOrDarwin())
-        {
-            settings.Framework = "netstandard2.0";
+        GetFiles("./src/*/*.csproj")
+            .ToList()
+            .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
 
-            GetFiles("./src/*/*.csproj")
-                .ToList()
-                .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
-
-            settings.Framework = "netcoreapp2.2";
-
-            GetFiles("./tests/*/*.tests.csproj")
-                .ToList()
-                .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
-        }
+        GetFiles("./tests/*/*.test.csproj")
+            .ToList()
+            .ForEach(f => DotNetCoreBuild(f.FullPath, settings));
 
     });
 
@@ -168,11 +170,6 @@ Task("package-nuget")
                 .WithProperty("PackageVersion", packageVersion)
                 .WithProperty("Copyright", $"Kristofer Linnestjerna {DateTime.Now.Year}")
         };
-
-        if (IsRunningOnLinuxOrDarwin())
-        {
-            settings.MSBuildSettings.WithProperty("TargetFrameworks", "netstandard2.0");
-        }
 
         GetFiles("./src/*/*.csproj")
             .ToList()

@@ -3,7 +3,7 @@ services:
   app:
     build: .
     image: build/metaprint
-    command: bash -c "dotnet cake metaprint/build.cake --bootstrap && dotnet cake metaprint/build.cake"
+    command: bash -c "dotnet cake metaprint/build.cake --bootstrap && dotnet cake metaprint/build.cake --pack"
 
     volumes:
       - ../:/metaprint
