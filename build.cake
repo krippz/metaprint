@@ -42,7 +42,7 @@ var packageVersion = "1.0.0";
 Task("clean")
     .Does(() =>
     {
-         CleanDirectory(artifactsDir);
+        CleanDirectory(artifactsDir);
 
         var settings = new DotNetCoreCleanSettings
         {
