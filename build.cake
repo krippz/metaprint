@@ -104,9 +104,10 @@ Task("build")
             NoRestore = true,
             MSBuildSettings = new DotNetCoreMSBuildSettings()
                 .SetVersion(assemblyVersion)
-                .WithProperty("FileVersion", packageVersion)
-                .WithProperty("InformationalVersion", packageVersion)
+                .SetFileVersion(packageVersion)
+                .SetInformationalVersion(packageVersion)
                 .WithProperty("nowarn", "7035")
+                .WithProperty("Copyright", $"Kristofer Linnestjerna {DateTime.Now.Year}")
         };
 
         GetFiles("./src/*/*.csproj")
