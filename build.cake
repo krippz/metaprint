@@ -34,6 +34,7 @@ var solutionPath = "metaprint.sln";
 
 var assemblyVersion = "1.0.0";
 var packageVersion = "1.0.0";
+var informationalVersion = "";
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -80,9 +81,11 @@ Task("semver")
         var gitVersion = GitVersion(settings);
         assemblyVersion = gitVersion.AssemblySemVer;
         packageVersion = gitVersion.NuGetVersion;
+        informationalVersion = gitVersion.InformationalVersion;
 
         Information($"AssemblySemVer: {assemblyVersion}");
         Information($"NuGetVersion: {packageVersion}");
+        Information($"InformationalVersion: {informationalVersion}");
     });
 
 Task("set-appveyor-version")
@@ -126,6 +129,7 @@ Task("run-tests")
     {
         var argumentsBuilder = new ProcessArgumentBuilder()
                                    .Append("test")
+                                   .Append("--no-build")
                                    .Append("--test-adapter-path:.");
 
         var settings = new ProcessSettings()
