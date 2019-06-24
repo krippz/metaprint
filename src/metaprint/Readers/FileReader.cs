@@ -113,6 +113,7 @@ namespace Readers
                     break;
                 case PeFile pe:
                     data.Bitness = pe.Is64Bit ? "x64" : "x32";
+                    data.AuthentiCodeCertificateThumbprint = pe.IsSigned ? pe.Authenticode?.SigningCertificate.Thumbprint.GetValueOrNotAvalible() : "not signed";
                     break;
                 default:
                     break;

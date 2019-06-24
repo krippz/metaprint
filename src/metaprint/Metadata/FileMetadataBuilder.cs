@@ -52,6 +52,13 @@ namespace Metadata
             return this;
         }
 
+        public IFileMetaInfoBuilder BuildAuthentiCodeCertificateThumbprint()
+        {
+            var items = _reader.Read(_filesA);
+            _fileMetadataInfo.AuthentiCodeCertificateThumbprint = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.AuthentiCodeCertificateThumbprint}"));
+            return this;
+        }
+
         public FileMetadataInfo GetMetadata()
         {
             var meta = _fileMetadataInfo;

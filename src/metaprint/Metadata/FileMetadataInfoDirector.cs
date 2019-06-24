@@ -17,6 +17,7 @@ namespace Metadata
                 _fileMetadataInfoBuilder.BuildCopyright();
                 _fileMetadataInfoBuilder.BuildCompanyName();
                 _fileMetadataInfoBuilder.BuildProcessorArchitecture();
+                _fileMetadataInfoBuilder.BuildAuthentiCodeCertificateThumbprint();
             }
         }
     }

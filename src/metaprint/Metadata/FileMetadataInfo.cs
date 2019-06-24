@@ -7,8 +7,9 @@ namespace Metadata
         public string Version { get; set; }
         public string Copyright { get; set; }
         public string CompanyName { get; set; }
-
         public string ProcessorArchitecture { get; set; }
+
+        public string AuthentiCodeCertificateThumbprint { get; set; }
 
         public override string ToString() =>
                 new StringBuilder()
@@ -16,6 +17,7 @@ namespace Metadata
                 .AppendLine(CompanyName)
                 .AppendLine(Copyright)
                 .AppendLine(ProcessorArchitecture)
+                .AppendLine(AuthentiCodeCertificateThumbprint)
                 .ToString();
     }
 }

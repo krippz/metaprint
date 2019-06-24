@@ -15,6 +15,7 @@ namespace Metadata
         public string ProductVersion { get; set; }
         public string ProcessorArchitecture { get; set; }
         public string Bitness { get; set; }
+        public string AuthentiCodeCertificateThumbprint { get; set; }
         public static FileMetadata Empty => new FileMetadata();
         public FileMetadata()
         {
@@ -28,6 +29,7 @@ namespace Metadata
             this.ProductVersion = string.Empty;
             this.ProcessorArchitecture = string.Empty;
             this.Bitness = string.Empty;
+            this.AuthentiCodeCertificateThumbprint = string.Empty;
         }
     }
 
@@ -44,7 +46,8 @@ namespace Metadata
                     x.ProductName.Equals(y.ProductName) &&
                     x.ProductVersion.Equals(y.ProductVersion) &&
                     x.ProcessorArchitecture.Equals(y.ProcessorArchitecture) &&
-                    x.Bitness.Equals(y.Bitness);
+                    x.Bitness.Equals(y.Bitness) &&
+                    x.AuthentiCodeCertificateThumbprint.Equals(y.AuthentiCodeCertificateThumbprint);
         }
 
         public int GetHashCode(FileMetadata obj)
@@ -52,5 +55,4 @@ namespace Metadata
             return obj.GetHashCode();
         }
     }
-
 }
