@@ -35,27 +35,27 @@ namespace Metadata
         public IFileMetaInfoBuilder BuildCopyright()
         {
             var items = _reader.Read(_filesA);
-            _fileMetadataInfo.Copyright = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.Copyright}"));
+            _fileMetadataInfo.Copyright = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.Copyright,50}"));
             return this;
         }
         public IFileMetaInfoBuilder BuildCompanyName()
         {
             var items = _reader.Read(_filesA);
-            _fileMetadataInfo.CompanyName = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.CompanyName}"));
+            _fileMetadataInfo.CompanyName = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.CompanyName,50}"));
             return this;
         }
 
         public IFileMetaInfoBuilder BuildProcessorArchitecture()
         {
             var items = _reader.Read(_filesA);
-            _fileMetadataInfo.ProcessorArchitecture = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.ProcessorArchitecture}"));
+            _fileMetadataInfo.ProcessorArchitecture = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.ProcessorArchitecture,50}"));
             return this;
         }
 
         public IFileMetaInfoBuilder BuildAuthentiCodeCertificateThumbprint()
         {
             var items = _reader.Read(_filesA);
-            _fileMetadataInfo.AuthentiCodeCertificateThumbprint = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.AuthentiCodeCertificateThumbprint}"));
+            _fileMetadataInfo.AuthentiCodeCertificateThumbprint = string.Join(Environment.NewLine, items.Select(item => $"{item.FileName,-75}{item.AuthentiCodeCertificateThumbprint,50}"));
             return this;
         }
 
