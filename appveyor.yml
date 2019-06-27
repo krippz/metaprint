@@ -15,6 +15,14 @@ skip_commits:
   files:
     - LICENSE
     - README.md
+
+artifacts:
+  - path: artifacts\test-results\*.xml
+    name: test report
+    type: File
+
+  - path: artifacts\nupkg\**\*.nupkg
+    name: metaprint-tool
 # `install` will run before `build_script`
 install:
   # Cake build is targeting `.NET Core` `2.2.0`, so we can safely install the latest `SDK`
