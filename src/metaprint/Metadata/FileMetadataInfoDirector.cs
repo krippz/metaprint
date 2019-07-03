@@ -14,10 +14,10 @@ namespace Metadata
 
             if (verbose)
             {
-                _fileMetadataInfoBuilder.BuildCopyright();
-                _fileMetadataInfoBuilder.BuildCompanyName();
-                _fileMetadataInfoBuilder.BuildProcessorArchitecture();
-                _fileMetadataInfoBuilder.BuildAuthentiCodeCertificateThumbprint();
+                _fileMetadataInfoBuilder.BuildCopyright()
+                                        .BuildCompanyName()
+                                        .BuildProcessorArchitecture()
+                                        .BuildAuthentiCodeCertificateThumbprint();
             }
         }
     }
