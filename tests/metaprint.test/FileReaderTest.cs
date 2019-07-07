@@ -1,7 +1,7 @@
 using Xunit;
-using Readers;
-using Config;
-using Metadata;
+using metaprint.Config;
+using metaprint.Metadata;
+using metaprint.Readers;
 
 namespace Metaprint.Test
 {
@@ -18,8 +18,9 @@ namespace Metaprint.Test
 
             Assert.Equal(expected, actual.FileName);
         }
+        
         [Fact]
-        public void ShouldReturnNAVersionForNonNetFile()
+        public void ShouldReturnNaVersionForNonNetFile()
         {
             var reader = new FileReader(new Settings());
             var expected = "N/A";
@@ -30,7 +31,7 @@ namespace Metaprint.Test
         }
 
         [Fact]
-        public void ShouldReturnEmptyFileMetadataWhenFileDowsNotExist()
+        public void ShouldReturnEmptyFileMetadataWhenFileDoesNotExist()
         {
             var reader = new FileReader(new Settings());
             var expected = new FileMetadata();

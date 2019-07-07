@@ -1,66 +1,70 @@
 using System;
 using System.Collections.Generic;
-using Metadata;
-using Readers;
-using Print;
 using System.Linq;
+using metaprint.Metadata;
+using metaprint.Readers;
 
-public class Printer : IPrinter
+namespace metaprint.Print
 {
-    private IReader reader;
-    private bool verbose;
-    private const int Width = 50;
-    private string separator => new string('-', Width);
-    public Printer(IReader reader, bool verbose = false)
+    public class Printer : IPrinter
     {
-        this.reader = reader;
-        this.verbose = verbose;
-    }
-
-    public void PrettyPrint(IEnumerable<string> files)
-    {
-
-        var builder = new FileMetadataBuilder(files, reader);
-        var director = new FileMetadataInfoDirector(builder);
-        director.BuildFileMetadataInfo(verbose);
-
-        var info = builder.GetMetadata();
-        Wrap(info);
-
-        Console.Write(info);
-    }
-
-    private void Wrap(FileMetadataInfo data)
-    {
-        var props = data.GetType().GetProperties().Where(x => x.CustomAttributes.Any(attr => attr.AttributeType == typeof(WrapPrettyAttribute)));
-
-        foreach (var item in props)
+        private readonly IReader _reader;
+        private readonly bool _verbose;
+        private const int Width = 50;
+        private static string Separator => new string('-', Width);
+        public Printer(IReader reader, bool verbose = false)
         {
-            var tail = separator;
-            var space = 15;
-            var leftAlign = 55;
-            var formatStrign = "{0,-55}{1,-" + space + "}{2," + leftAlign + "}";
+            _reader = reader;
+            _verbose = verbose;
+        }
 
-            if (item.Name.Length > space)
+        public void PrettyPrint(IEnumerable<string> files)
+        {
+            var builder = new FileMetadataBuilder(files, _reader);
+            var director = new FileMetadataInfoDirector(builder);
+            director.BuildFileMetadataInfo(_verbose);
+
+            var info = builder.GetMetadata();
+            Wrap(info);
+
+            Console.Write(info);
+        }
+
+        private static void Wrap(FileMetadataInfo data)
+        {
+            var props = data.GetType().GetProperties().Where(x => x.CustomAttributes.Any(attr => attr.AttributeType == typeof(WrapPrettyAttribute)));
+
+            foreach (var item in props)
             {
-                var overflow = Math.Abs(space - item.Name.Length);
-                var adjustedSpace = Math.Abs(space - overflow);
-                tail = separator.Remove(0, overflow + adjustedSpace);
+                var tail = Separator;
+                const int space = 15;
+                var leftAlign = 55;
+                var formatString = "{0,-55}{1,-" + space + "}{2," + leftAlign + "}";
 
-                leftAlign = leftAlign - overflow;
-                formatStrign = "{0,-55}{1,-" + adjustedSpace + "}{2," + leftAlign + "}";
-            }
+                if (item.Name.Length > space)
+                {
+                    var overflow = Math.Abs(space - item.Name.Length);
+                    var adjustedSpace = Math.Abs(space - overflow);
+                    tail = Separator.Remove(0, overflow + adjustedSpace);
 
-            var header = string.Format(formatStrign, separator, item.Name, tail);
-            var footer = new string('-', header.Length);
+                    leftAlign -= overflow;
+                    formatString = "{0,-55}{1,-" + adjustedSpace + "}{2," + leftAlign + "}";
+                }
 
-            var value = item.GetValue(data, null)?.ToString();
-            if (!string.IsNullOrEmpty(value))
-            {
-                var result = $"{header}{System.Environment.NewLine}{value}{System.Environment.NewLine}{footer}";
+                var header = string.Format(formatString, Separator, item.Name, tail);
+                var footer = new string('-', header.Length);
+
+                var value = item.GetValue(data, null)?.ToString();
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    continue;
+                }
+                
+                var result = $"{header}{Environment.NewLine}{value}{Environment.NewLine}{footer}";
                 item.SetValue(data, result);
-            }
 
+            }
         }
     }
 }

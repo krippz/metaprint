@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Print
+namespace metaprint.Print
 {
     public interface IPrinter
     {

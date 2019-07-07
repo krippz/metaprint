@@ -1,4 +1,4 @@
-namespace Metadata
+namespace metaprint.Metadata
 {
     public class FileMetadataInfoDirector
     {

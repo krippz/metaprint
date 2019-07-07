@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using CommandLine;
 
-namespace Config
+namespace metaprint.Config
 {
     public class Options
     {
@@ -17,7 +17,7 @@ namespace Config
         [Option('d', "directories", Required = true, HelpText = "Run against all files in folder(s)")]
         public IEnumerable<string> Directories { get; set; }
 
-        [Option('c', "company", Separator = ':', Required = false, HelpText = "Filter by only these companys")]
-        public IEnumerable<string> Companys { get; set; }
+        [Option('c', "company", Separator = ':', Required = false, HelpText = "Filter by only these company's")]
+        public IEnumerable<string> Company { get; set; }
     }
 }

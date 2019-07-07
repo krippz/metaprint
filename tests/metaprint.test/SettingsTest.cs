@@ -1,6 +1,6 @@
 using Xunit;
-using Config;
 using System.Collections.Generic;
+using metaprint.Config;
 
 namespace Metaprint.Test
 {
@@ -9,9 +9,9 @@ namespace Metaprint.Test
         [Fact]
         public void ShouldAddDotToExtensionIfAbsent()
         {
-            var extensions = new List<string>() { "dll", "exe" };
+            var extensions = new List<string> { "dll", "exe" };
 
-            var expected = new List<string>() { ".dll", ".exe" };
+            var expected = new List<string> { ".dll", ".exe" };
 
             var settings = new Settings(extensions);
 
@@ -23,9 +23,9 @@ namespace Metaprint.Test
         [Fact]
         public void ShouldNormalizeMixedExtensions()
         {
-            var extensions = new List<string>() { "dll", ".exe", "1", "JSON" };
+            var extensions = new List<string> { "dll", ".exe", "1", "JSON" };
 
-            var expected = new List<string>() { ".dll", ".exe", ".1", ".json" };
+            var expected = new List<string> { ".dll", ".exe", ".1", ".json" };
 
             var settings = new Settings(extensions);
 

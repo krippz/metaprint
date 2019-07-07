@@ -1,5 +1,5 @@
 using Xunit;
-using Metadata;
+using metaprint.Metadata;
 
 namespace Metaprint.Test
 {

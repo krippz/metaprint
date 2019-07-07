@@ -1,24 +1,24 @@
 using System.Text;
-using Print;
+using metaprint.Print;
 
-namespace Metadata
+namespace metaprint.Metadata
 {
     public class FileMetadataInfo
     {
         [WrapPretty]
-        public string Version { get; set; }
+        public string Version { private get; set; }
 
         [WrapPretty]
-        public string Copyright { get; set; }
+        public string Copyright { private get; set; }
 
         [WrapPretty]
-        public string CompanyName { get; set; }
+        public string CompanyName { private get; set; }
 
         [WrapPretty]
-        public string ProcessorArchitecture { get; set; }
+        public string ProcessorArchitecture { private get; set; }
 
         [WrapPretty]
-        public string AuthentiCodeCertificateThumbprint { get; set; }
+        public string AuthentiCodeCertificateThumbprint { private get; set; }
 
         public override string ToString() =>
                 new StringBuilder()

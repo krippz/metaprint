@@ -1,8 +1,8 @@
-namespace Extensions
+namespace metaprint.Extensions
 {
     public static class StringExtensions
     {
-        public static string GetValueOrNotAvalible(this string value)
+        public static string GetValueOrNotAvailable(this string value)
         {
             return !string.IsNullOrEmpty(value) ? value : "N/A";
         }
@@ -13,10 +13,8 @@ namespace Extensions
             {
                 return value.Length <= maxChars ? value : value.Substring(0, maxChars);
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
     }
 }

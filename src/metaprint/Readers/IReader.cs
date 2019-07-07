@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Metadata;
+using metaprint.Metadata;
 
-namespace Readers
+namespace metaprint.Readers
 {
     public interface IReader
     {

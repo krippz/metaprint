@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using Extensions;
+using metaprint.Extensions;
 
-namespace Config
+namespace metaprint.Config
 {
     public class Settings
     {
-        public IEnumerable<string> Extensions { get; set; }
+        public IEnumerable<string> Extensions { get; private set; }
 
         public Settings()
         {
@@ -21,10 +21,7 @@ namespace Config
             }
             else
             {
-                Extensions = safeExt.Select(i =>
-                {
-                    return i.StartsWith(".") ? i.ToLowerInvariant() : "." + i.ToLowerInvariant();
-                });
+                Extensions = safeExt.Select(i => i.StartsWith(".") ? i.ToLowerInvariant() : "." + i.ToLowerInvariant());
             }
         }
 

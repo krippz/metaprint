@@ -1,9 +1,9 @@
 using System;
 
-namespace Print
+namespace metaprint.Print
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class WrapPrettyAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Property)]
+    public class WrapPrettyAttribute : Attribute
     {
 
     }

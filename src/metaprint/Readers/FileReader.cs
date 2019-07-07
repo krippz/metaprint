@@ -4,30 +4,28 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CSharpx;
-using Extensions;
+using metaprint.Config;
+using metaprint.Extensions;
+using metaprint.Metadata;
 using PeNet;
-using Readers;
-using Config;
-using Metadata;
 
-namespace Readers
+namespace metaprint.Readers
 {
     public class FileReader : IReader
     {
-        private readonly IEnumerable<string> fileExtensions;
+        private readonly IEnumerable<string> _fileExtensions;
 
         public FileReader(Settings settings)
         {
-            fileExtensions = settings.Extensions;
+            _fileExtensions = settings.Extensions;
         }
         public FileMetadata Read(string path)
         {
             var meta = new FileMetadata();
 
-            ReadFileAs<FileVersionInfo>(path, ReadFileVersionInfo, meta);
-            ReadFileAs<AssemblyName>(path, ReadAssemblyName, meta);
-            ReadFileAs<PeFile>(path, ReadPeFile, meta);
+            ReadFileAs(path, ReadFileVersionInfo, meta);
+            ReadFileAs(path, ReadAssemblyName, meta);
+            ReadFileAs(path, ReadPeFile, meta);
 
             return meta;
         }
@@ -36,25 +34,23 @@ namespace Readers
         {
             var anyFiles = GetFiles(paths);
 
-            if (!anyFiles.IsNullOrEmpty())
+            if (anyFiles.IsNullOrEmpty())
             {
-                var result = anyFiles.ToList().Select(x =>
-                {
-                    return Read(x);
-                });
-
-                return result.Where(r => !r.Equals(Metadata.FileMetadata.Empty));
+                return Enumerable.Empty<FileMetadata>();
             }
+            
+            var result = anyFiles.ToList().Select(Read);
 
-            return Enumerable.Empty<FileMetadata>();
+            return result.Where(r => !r.Equals(FileMetadata.Empty));
+
         }
         private IEnumerable<string> GetFiles(IEnumerable<string> dirs)
         {
             return dirs.SelectMany(dir => Directory.GetFiles(dir, "*.*")
-                                                .Where(s => fileExtensions.Contains(Path.GetExtension(s))))
+                                                .Where(s => _fileExtensions.Contains(Path.GetExtension(s))))
                                                 .ToList();
         }
-        private bool PathIsFile(string path)
+        private static bool PathIsFile(string path)
         {
             try
             {
@@ -65,7 +61,7 @@ namespace Readers
                 return false;
             }
         }
-        private T Execute<T>(Func<T> function)
+        private static T Execute<T>(Func<T> function)
         {
             try
             {
@@ -73,24 +69,24 @@ namespace Readers
             }
             catch
             {
-                return default(T);
+                return default;
             }
         }
-        private FileVersionInfo ReadFileVersionInfo(string path)
+        private static FileVersionInfo ReadFileVersionInfo(string path)
         {
-            return PathIsFile(path) ? Execute(() => System.Diagnostics.FileVersionInfo.GetVersionInfo(path)) : null;
+            return PathIsFile(path) ? Execute(() => FileVersionInfo.GetVersionInfo(path)) : null;
         }
-        private AssemblyName ReadAssemblyName(string path)
+        private static AssemblyName ReadAssemblyName(string path)
         {
-            return PathIsFile(path) ? Execute(() => System.Reflection.AssemblyName.GetAssemblyName(path)) : null;
+            return PathIsFile(path) ? Execute(() => AssemblyName.GetAssemblyName(path)) : null;
         }
-        private PeFile ReadPeFile(string path)
+        private static PeFile ReadPeFile(string path)
         {
             return PathIsFile(path) ? Execute(() => new PeFile(path)) : null;
         }
-        private void ReadFileAs<T>(string path, Func<string, T> reader, FileMetadata data)
+        private static void ReadFileAs<T>(string path, Func<string, T> reader, FileMetadata data)
         {
-            T result = reader(path);
+            var result = reader(path);
             if (result == null)
             {
                 return;
@@ -99,23 +95,21 @@ namespace Readers
             switch (result)
             {
                 case FileVersionInfo info:
-                    data.FileName = Path.GetFileName(info.FileName.GetValueOrNotAvalible());
-                    data.InternalName = info.InternalName.GetValueOrNotAvalible();
-                    data.FileVersion = info.FileVersion.GetValueOrNotAvalible();
-                    data.CompanyName = info.CompanyName.GetValueOrNotAvalible();
-                    data.Copyright = info.LegalCopyright.GetValueOrNotAvalible();
-                    data.Trademark = info.LegalTrademarks.GetValueOrNotAvalible();
-                    data.ProductName = info.ProductName.GetValueOrNotAvalible();
-                    data.ProductVersion = info.ProductVersion.GetValueOrNotAvalible();
+                    data.FileName = Path.GetFileName(info.FileName.GetValueOrNotAvailable());
+                    data.InternalName = info.InternalName.GetValueOrNotAvailable();
+                    data.FileVersion = info.FileVersion.GetValueOrNotAvailable();
+                    data.CompanyName = info.CompanyName.GetValueOrNotAvailable();
+                    data.Copyright = info.LegalCopyright.GetValueOrNotAvailable();
+                    data.Trademark = info.LegalTrademarks.GetValueOrNotAvailable();
+                    data.ProductName = info.ProductName.GetValueOrNotAvailable();
+                    data.ProductVersion = info.ProductVersion.GetValueOrNotAvailable();
                     break;
                 case AssemblyName asm:
                     data.ProcessorArchitecture = Enum.GetName(typeof(ProcessorArchitecture), asm.ProcessorArchitecture);
                     break;
                 case PeFile pe:
                     data.Bitness = pe.Is64Bit ? "x64" : "x32";
-                    data.AuthentiCodeCertificateThumbprint = pe.IsSigned ? pe.Authenticode?.SigningCertificate.Thumbprint.GetValueOrNotAvalible() : "not signed";
-                    break;
-                default:
+                    data.AuthentiCodeCertificateThumbprint = pe.IsSigned ? pe.Authenticode?.SigningCertificate.Thumbprint.GetValueOrNotAvailable() : "not signed";
                     break;
             }
         }

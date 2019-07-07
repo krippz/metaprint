@@ -1,20 +1,22 @@
 ﻿using System;
 using CommandLine;
-using Config;
-using Extensions;
-using Readers;
+using metaprint.Config;
+using metaprint.Extensions;
+using metaprint.Print;
+using metaprint.Readers;
 
 namespace Metaprint
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
             var parser = new Parser(configuration => configuration.HelpWriter = Console.Out);
-            var result = parser.ParseArguments<Options>(args)
-                                .WithParsed(options => RunPrinter(options));
+            parser.ParseArguments<Options>(args)
+                .WithParsed(RunPrinter);
         }
-        public static void RunPrinter(Options o)
+
+        private static void RunPrinter(Options o)
         {
             var settings = new Settings(o.Extensions);
             var reader = new FileReader(settings);

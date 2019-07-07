@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Text;
 
-namespace Metadata
+namespace metaprint.Metadata
 {
     public class FileMetadata
     {
@@ -19,17 +18,17 @@ namespace Metadata
         public static FileMetadata Empty => new FileMetadata();
         public FileMetadata()
         {
-            this.FileName = string.Empty;
-            this.InternalName = string.Empty;
-            this.FileVersion = string.Empty;
-            this.CompanyName = string.Empty;
-            this.Copyright = string.Empty;
-            this.Trademark = string.Empty;
-            this.ProductName = string.Empty;
-            this.ProductVersion = string.Empty;
-            this.ProcessorArchitecture = string.Empty;
-            this.Bitness = string.Empty;
-            this.AuthentiCodeCertificateThumbprint = string.Empty;
+           FileName = string.Empty;
+           InternalName = string.Empty;
+           FileVersion = string.Empty;
+           CompanyName = string.Empty;
+           Copyright = string.Empty;
+           Trademark = string.Empty;
+           ProductName = string.Empty;
+           ProductVersion = string.Empty;
+           ProcessorArchitecture = string.Empty;
+           Bitness = string.Empty;
+           AuthentiCodeCertificateThumbprint = string.Empty;
         }
     }
 
