@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using CommandLine;
 
 namespace metaprint.Config
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class Options
     {
         [Option('v', "verbose", Required = false, HelpText = "Prints verbose versions")]

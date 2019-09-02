@@ -19,7 +19,7 @@ namespace metaprint.Readers
         {
             _fileExtensions = settings.Extensions;
         }
-        public FileMetadata Read(string path)
+        public static FileMetadata Read(string path)
         {
             var meta = new FileMetadata();
 
@@ -34,12 +34,14 @@ namespace metaprint.Readers
         {
             var anyFiles = GetFiles(paths);
 
+            // ReSharper disable PossibleMultipleEnumeration
             if (anyFiles.IsNullOrEmpty())
             {
                 return Enumerable.Empty<FileMetadata>();
             }
-            
+
             var result = anyFiles.ToList().Select(Read);
+            // ReSharper restore PossibleMultipleEnumeration
 
             return result.Where(r => !r.Equals(FileMetadata.Empty));
 
@@ -104,9 +106,11 @@ namespace metaprint.Readers
                     data.ProductName = info.ProductName.GetValueOrNotAvailable();
                     data.ProductVersion = info.ProductVersion.GetValueOrNotAvailable();
                     break;
+
                 case AssemblyName asm:
                     data.ProcessorArchitecture = Enum.GetName(typeof(ProcessorArchitecture), asm.ProcessorArchitecture);
                     break;
+
                 case PeFile pe:
                     data.Bitness = pe.Is64Bit ? "x64" : "x32";
                     data.AuthentiCodeCertificateThumbprint = pe.IsSigned ? pe.Authenticode?.SigningCertificate.Thumbprint.GetValueOrNotAvailable() : "not signed";

@@ -36,17 +36,18 @@ namespace metaprint.Metadata
     {
         public bool Equals(FileMetadata x, FileMetadata y)
         {
-            return x.FileName.Equals(y.FileName) &&
-                    x.InternalName.Equals(y.InternalName) &&
-                    x.FileVersion.Equals(y.FileVersion) &&
-                    x.CompanyName.Equals(y.CompanyName) &&
-                    x.Copyright.Equals(y.Copyright) &&
-                    x.Trademark.Equals(y.Trademark) &&
-                    x.ProductName.Equals(y.ProductName) &&
-                    x.ProductVersion.Equals(y.ProductVersion) &&
-                    x.ProcessorArchitecture.Equals(y.ProcessorArchitecture) &&
-                    x.Bitness.Equals(y.Bitness) &&
-                    x.AuthentiCodeCertificateThumbprint.Equals(y.AuthentiCodeCertificateThumbprint);
+            
+            return x != null && y != null && x.FileName.Equals(y.FileName) &&
+                                             x.InternalName.Equals(y.InternalName) &&
+                                             x.FileVersion.Equals(y.FileVersion) &&
+                                             x.CompanyName.Equals(y.CompanyName) &&
+                                             x.Copyright.Equals(y.Copyright) &&
+                                             x.Trademark.Equals(y.Trademark) &&
+                                             x.ProductName.Equals(y.ProductName) &&
+                                             x.ProductVersion.Equals(y.ProductVersion) &&
+                                             x.ProcessorArchitecture.Equals(y.ProcessorArchitecture) &&
+                                             x.Bitness.Equals(y.Bitness) &&
+                                             x.AuthentiCodeCertificateThumbprint.Equals(y.AuthentiCodeCertificateThumbprint);
         }
 
         public int GetHashCode(FileMetadata obj)

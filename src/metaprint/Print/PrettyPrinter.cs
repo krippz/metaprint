@@ -12,6 +12,7 @@ namespace metaprint.Print
         private readonly bool _verbose;
         private const int Width = 50;
         private static string Separator => new string('-', Width);
+
         public Printer(IReader reader, bool verbose = false)
         {
             _reader = reader;
@@ -60,7 +61,7 @@ namespace metaprint.Print
                 {
                     continue;
                 }
-                
+
                 var result = $"{header}{Environment.NewLine}{value}{Environment.NewLine}{footer}";
                 item.SetValue(data, result);
 

@@ -1,5 +1,4 @@
 using Xunit;
-using metaprint.Config;
 using metaprint.Metadata;
 using metaprint.Readers;
 
@@ -10,22 +9,20 @@ namespace Metaprint.Test
         [Fact]
         public void ShouldReturnFileNameForNonNetFile()
         {
+            const string expected = "metaprint.test.runtimeconfig.json";
 
-            var reader = new FileReader(new Settings());
-            var expected = "metaprint.test.runtimeconfig.json";
-
-            var actual = reader.Read("./metaprint.test.runtimeconfig.json");
+            var actual = FileReader.Read("./metaprint.test.runtimeconfig.json");
 
             Assert.Equal(expected, actual.FileName);
         }
-        
+
         [Fact]
         public void ShouldReturnNaVersionForNonNetFile()
         {
-            var reader = new FileReader(new Settings());
-            var expected = "N/A";
 
-            var actual = reader.Read("./metaprint.test.runtimeconfig.json");
+            const string expected = "N/A";
+
+            var actual = FileReader.Read("./metaprint.test.runtimeconfig.json");
 
             Assert.Equal(expected, actual.FileVersion);
         }
@@ -33,10 +30,9 @@ namespace Metaprint.Test
         [Fact]
         public void ShouldReturnEmptyFileMetadataWhenFileDoesNotExist()
         {
-            var reader = new FileReader(new Settings());
             var expected = new FileMetadata();
 
-            var actual = reader.Read("");
+            var actual = FileReader.Read("");
             Assert.Equal(expected, actual, new FileMetadataComparer());
         }
     }

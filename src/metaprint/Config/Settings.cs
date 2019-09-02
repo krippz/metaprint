@@ -8,10 +8,6 @@ namespace metaprint.Config
     {
         public IEnumerable<string> Extensions { get; private set; }
 
-        public Settings()
-        {
-            SetDefaults();
-        }
         public Settings(IEnumerable<string> fileExtensions)
         {
             var safeExt = fileExtensions.ToList();

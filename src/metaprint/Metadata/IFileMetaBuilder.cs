@@ -7,6 +7,5 @@ namespace metaprint.Metadata
         IFileMetaInfoBuilder BuildCompanyName();
         IFileMetaInfoBuilder BuildProcessorArchitecture();
         IFileMetaInfoBuilder BuildAuthentiCodeCertificateThumbprint();
-        FileMetadataInfo GetMetadata();
     }
 }
