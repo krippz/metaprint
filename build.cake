@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////////////////
-// MODULES TOOLS AND ADINS
+// MODULES TOOLS AND ADDINS
 //////////////////////////////////////////////////////////////////////
 
-#module nuget:?package=Cake.DotNetTool.Module&version=0.3.0
+#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
 
-#addin nuget:?package=Cake.AppVeyor&version=3.0.0
-#addin nuget:?package=Refit&version=3.0.0
-#addin nuget:?package=Newtonsoft.Json&version=9.0.1
-#tool dotnet:?package=GitVersion.Tool&version=5.0.0-beta3-4
-#tool dotnet:?package=dotnet-xunit-to-junit&version=1.0.0
+#addin nuget:?package=Cake.AppVeyor&version=4.0.0
+#addin nuget:?package=Refit&version=5.0.23
+#addin nuget:?package=Newtonsoft.Json&version=12.0.3
+#tool dotnet:?package=GitVersion.Tool&version=5.2.0
+#tool dotnet:?package=dotnet-xunit-to-junit&version=1.0.4
 
 #r Newtonsoft.Json
 

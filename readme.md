@@ -1,10 +1,15 @@
 # Metaprint
+[![Build status](https://ci.appveyor.com/api/projects/status/u4bf28dvme2b5b6v/branch/master?svg=true)](https://ci.appveyor.com/project/krippz/metaprint/branch/master)
+
+
 
 Tired of clicking up the Explorer meta data?
 
 Want to check each file in a folder for stuff like copyright or just to see what version a file has?
 
 This little dotnet tool has you covered.
+
+
 
 ## Installation
 
