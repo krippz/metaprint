@@ -1,5 +1,7 @@
 # Created by https://www.gitignore.io/api/csharp,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=csharp,visualstudiocode
+##
+.DS_Store
 
 ### Csharp ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -359,4 +361,5 @@ MigrationBackup/
 # Ignore all local history of files
 .history
 
+nuget-api-key
 # End of https://www.gitignore.io/api/csharp,visualstudiocode

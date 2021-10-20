@@ -1,16 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // MODULES TOOLS AND ADDINS
 //////////////////////////////////////////////////////////////////////
-
-#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
-
-#addin nuget:?package=Cake.AppVeyor&version=4.0.0
-#addin nuget:?package=Refit&version=5.0.23
-#addin nuget:?package=Newtonsoft.Json&version=12.0.3
-#tool dotnet:?package=GitVersion.Tool&version=5.2.0
-#tool dotnet:?package=dotnet-xunit-to-junit&version=1.0.4
-
-#r Newtonsoft.Json
+#tool dotnet:?package=GitVersion.Tool&version=5.7.0
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -150,13 +141,10 @@ Task("run-tests")
             StartProcess("dotnet", settings);
         }
     })
-    .Does(() =>
-    {
-        if (IsRunningOnCircleCI())
-        {
-            TransformCircleCITestResults();
-        }
-    })
+    // .Does(() =>
+    // {
+
+    // })
     .DeferOnError();
 
 Task("package-nuget")
@@ -193,42 +181,3 @@ Task("default")
 //////////////////////////////////////////////////////////////////////
 
 RunTarget(target);
-
-private bool IsRunningOnLinuxOrDarwin()
-{
-    return Context.Environment.Platform.IsUnix();
-}
-
-private bool IsRunningOnCircleCI()
-{
-    return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CIRCLECI"));
-}
-
-private void TransformCircleCITestResults()
-{
-    // CircleCI infer the name of the testing framework from the containing folder
-    var testResultsCircleCIDir = artifactsDir.Combine("junit/xUnit");
-    EnsureDirectoryExists(testResultsCircleCIDir);
-
-    var testResultsFiles = GetFiles($"{testResultsDir}/*.xml");
-
-    foreach (var testResultsFile in testResultsFiles)
-    {
-        var inputFilePath = testResultsFile;
-        var outputFilePath = testResultsCircleCIDir.CombineWithFilePath(testResultsFile.GetFilename());
-
-        var arguments = new ProcessArgumentBuilder()
-            .AppendQuoted(inputFilePath.ToString())
-            .AppendQuoted(outputFilePath.ToString())
-            .Render();
-
-        var toolName = Context.Environment.Platform.IsUnix() ? "dotnet-xunit-to-junit" : "dotnet-xunit-to-junit.exe";
-
-        var settings = new DotNetCoreToolSettings
-        {
-            ToolPath = Context.Tools.Resolve(toolName)
-        };
-
-        DotNetCoreTool(arguments, settings);
-    }
-}

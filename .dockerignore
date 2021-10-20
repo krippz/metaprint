@@ -1,0 +1,8 @@
+/artifacts
+/tools
+/src/metaprint/bin
+/src/metaprint/obj
+/tests/metaprint.test/bin
+/tests/metaprint.test/obj
+./build-in-docker.sh
+nuget-api-key
