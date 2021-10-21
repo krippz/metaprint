@@ -1,7 +1,5 @@
 # Metaprint
-[![Build status](https://ci.appveyor.com/api/projects/status/u4bf28dvme2b5b6v/branch/master?svg=true)](https://ci.appveyor.com/project/krippz/metaprint/branch/master)
-
-
+[![Build Status](https://dev.azure.com/klinnestjerna/metaprint/_apis/build/status/krippz.metaprint?branchName=master)](https://dev.azure.com/klinnestjerna/metaprint/_build/latest?definitionId=1&branchName=master)
 
 Tired of clicking up the Explorer meta data?
 
@@ -13,7 +11,7 @@ This little dotnet tool has you covered.
 
 ## Installation
 
-You will need tho have the dotnet sdk installed, you can get it here [https://dotnet.microsoft.com/download/dotnet-core/2.2](https://dotnet.microsoft.com/download/dotnet-core/2.2)
+You will need tho have the dotnet sdk installed, you can get it here [https://dotnet.microsoft.com/download/dotnet/5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 
 Since this runs as a dotnet tool the full SDK is needed.
 
@@ -34,6 +32,11 @@ metaprint --help
 The simple example with one file:
 ```
 metaprint -f some-random.dll
+```
+
+Look at the files in a directory:
+```
+metaprint -d c:\data\files
 ```
 
 The verbose example with a directory but just files with with ".1" extension:
